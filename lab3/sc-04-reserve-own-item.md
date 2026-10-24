@@ -8,6 +8,7 @@ sequenceDiagram
     participant Item as WishlistItem
 
     User->>S: reserveItem(itemId)
+    activate S
     S->>Item: findById(itemId)
     Item-->>S: item
     S->>W: findById(wishlistId)
@@ -16,10 +17,9 @@ sequenceDiagram
     W-->>S: true
 
     alt товар власний
-        activate S
         S-->>User: відмова
-        deactivate S
     else товар чужий
         S-->>User: перевірки доступності SC-03
     end
+    deactivate S
 ```

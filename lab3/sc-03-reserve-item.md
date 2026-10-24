@@ -9,6 +9,7 @@ sequenceDiagram
     participant R as Reservation
 
     User->>S: reserveItem(itemId)
+    activate S
     S->>Item: findById(itemId)
     Item-->>S: item
     S->>W: findById(wishlistId)
@@ -23,12 +24,11 @@ sequenceDiagram
     R-->>S: empty
 
     alt товар доступний
-        activate S
         S->>R: createReservation(itemId, currentUserId)
         R-->>S: reservationId
         S-->>User: reservationId
-        deactivate S
     else товар зайнятий або завершений
         S-->>User: відмова
     end
+    deactivate S
 ```
