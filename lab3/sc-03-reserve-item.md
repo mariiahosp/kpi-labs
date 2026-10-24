@@ -7,7 +7,6 @@ sequenceDiagram
     participant W as Wishlist
     participant Item as WishlistItem
     participant R as Reservation
-    participant Email as Email Service
 
     User->>S: reserveItem(itemId)
     S->>Item: findById(itemId)
@@ -27,8 +26,6 @@ sequenceDiagram
         activate S
         S->>R: createReservation(itemId, currentUserId)
         R-->>S: reservationId
-        S->>Email: sendReservationNotice(reservationId)
-        Email-->>S: sent
         S-->>User: reservationId
         deactivate S
     else товар зайнятий або завершений
