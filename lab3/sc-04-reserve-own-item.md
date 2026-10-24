@@ -6,7 +6,6 @@ sequenceDiagram
     participant S as WishlistService
     participant W as Wishlist
     participant Item as WishlistItem
-    participant R as Reservation
 
     User->>S: reserveItem(itemId)
     S->>Item: findById(itemId)
@@ -18,10 +17,6 @@ sequenceDiagram
 
     alt товар власний
         activate S
-        S->>R: createReservation(itemId, currentUserId)
-        R-->>S: reservationId
-        S->>R: deleteReservation(reservationId)
-        R-->>S: deleted
         S-->>User: відмова
         deactivate S
     else товар чужий
