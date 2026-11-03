@@ -19,16 +19,16 @@ sequenceDiagram
     S->>W: isOwnedBy(currentUserId)
     W-->>S: false
     S->>Item: isCompleted()
-    Item-->>S: false
+    Item-->>S: completed
     S->>R: findByItemId(itemId)
-    R-->>S: empty
+    R-->>S: existing
 
-    alt товар доступний
+    alt completed = false і existing порожній
         S->>R: createReservation(itemId, currentUserId)
         R-->>S: reservationId
         S-->>User: reservationId
-    else товар зайнятий або завершений
-        S-->>User: відмова
+    else completed = true або existing існує
+        S-->>User: rejectReservation()
     end
     deactivate S
 ```

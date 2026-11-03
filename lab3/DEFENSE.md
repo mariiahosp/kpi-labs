@@ -1,0 +1,27 @@
+# DEFENSE — Завдання 3: Взаємодія (Sequence)
+
+## Намір і критерії (1–2 речення)
+
+Мета завдання — описати внутрішню взаємодію Wishlist Service в сценаріях SC-03 і SC-04 варіанта використання UC-05.
+Критерії успіху: окрема sequence-діаграма на кожен сценарій, учасники з ER-моделі, фрагмент `alt` і суцільна активація WishlistService.
+
+## Топ-3 розбіжності (spec ↔ артефакт) + коміт-виправлення
+
+- **Email Service на SC-03.** Діаграма після створення бронювання викликала `sendReservationNotice()`, хоча в учасниках UC-05 цього сервісу немає. Виклик і лінію життя прибрано. Коміт: `8ede95a` (`fix: remove email participant from SC-03`).
+
+- **Запис бронювання при відмові.** SC-04 створював `Reservation` і одразу видаляв його, тоді як сценарій вимагає відмову без запису. У гілці «товар власний» залишилась лише відмова. Коміт: `4881ccc` (`fix: reject own-item reserve without creating reservation`).
+
+- **Активація всередині однієї гілки.** `activate` і `deactivate` стояли лише в одній гілці `alt`. Активація WishlistService тепер починається після `reserveItem(itemId)` і закінчується після `end` на обох діаграмах. Коміт: `296b114` (`fix: keep wishlist service activation around alt`).
+
+## Ключове рішення — які альтернативи зважив і чому обрав цю (ADR)
+
+Розглянуто одну лінію «Wishlist Service» і окремі лінії сутностей. Обрано лінії `Wishlist`, `WishlistItem` і `Reservation`: `findByItemId(itemId)` показує перевірку зв'язку 1:0..1, а `createReservation(itemId, currentUserId)` — ключі `item_id` і `user_id`.
+
+## Перевірка — узгодженість із попередньою моделлю (як перевірив)
+
+Лінії життя зіставлено з сутностями лабораторної №1, кроки діаграм — зі SC-03 і SC-04 у `lab2/scenarios.feature`. Охорона `alt` читає відповіді `isOwnedBy()`, `isCompleted()` і `findByItemId()`. Кожен сценарій названий гілкою, яку задає його Gherkin. Активація WishlistService починається до `alt` і закінчується після нього.
+
+## Здача
+
+- (а) GitHub PR: https://github.com/Mariagosp/kpi-labs
+- (б) цей заповнений DEFENSE

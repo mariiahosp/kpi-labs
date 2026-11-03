@@ -2,10 +2,11 @@
 
 ```mermaid
 sequenceDiagram
-    actor User as Інший користувач
+    actor User as Поточний користувач
     participant S as WishlistService
     participant W as Wishlist
     participant Item as WishlistItem
+    participant R as Reservation
 
     User->>S: reserveItem(itemId)
     activate S
@@ -14,12 +15,24 @@ sequenceDiagram
     S->>W: findById(wishlistId)
     W-->>S: wishlist
     S->>W: isOwnedBy(currentUserId)
-    W-->>S: true
+    W-->>S: owned
 
-    alt товар власний
-        S-->>User: відмова
-    else товар чужий
-        S-->>User: перевірки доступності SC-03
+    alt owned = true
+        S-->>User: rejectReservation()
+    else owned = false
+        S->>W: isPublic()
+        W-->>S: public
+        S->>Item: isCompleted()
+        Item-->>S: completed
+        S->>R: findByItemId(itemId)
+        R-->>S: existing
+        alt public = true і completed = false і existing порожній
+            S->>R: createReservation(itemId, currentUserId)
+            R-->>S: reservationId
+            S-->>User: reservationId
+        else список приватний, товар завершений або вже заброньований
+            S-->>User: rejectReservation()
+        end
     end
     deactivate S
 ```
