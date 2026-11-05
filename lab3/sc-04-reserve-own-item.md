@@ -11,28 +11,40 @@ sequenceDiagram
     User->>S: reserveItem(itemId)
     activate S
     S->>Item: findById(itemId)
+    activate Item
     Item-->>S: item
+    deactivate Item
     S->>W: findById(wishlistId)
+    activate W
     W-->>S: wishlist
+    deactivate W
     S->>W: isOwnedBy(currentUserId)
+    activate W
     W-->>S: owned
+    deactivate W
 
-    alt owned = true
+    break owned = true
         S-->>User: rejectReservation()
-    else owned = false
-        S->>W: isPublic()
-        W-->>S: public
-        S->>Item: isCompleted()
-        Item-->>S: completed
-        S->>R: findByItemId(itemId)
-        R-->>S: existing
-        alt public = true і completed = false і existing порожній
-            S->>R: createReservation(itemId, currentUserId)
-            R-->>S: reservationId
-            S-->>User: reservationId
-        else список приватний, товар завершений або вже заброньований
-            S-->>User: rejectReservation()
-        end
     end
+    S->>W: isPublic()
+    activate W
+    W-->>S: public
+    deactivate W
+    S->>Item: isCompleted()
+    activate Item
+    Item-->>S: completed
+    deactivate Item
+    S->>R: findByItemId(itemId)
+    activate R
+    R-->>S: existing
+    deactivate R
+    break public = false або completed = true або existing існує
+        S-->>User: rejectReservation()
+    end
+    S->>R: createReservation(itemId, currentUserId)
+    activate R
+    R-->>S: reservationId
+    deactivate R
+    S-->>User: reservationId
     deactivate S
 ```

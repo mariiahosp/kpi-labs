@@ -19,7 +19,7 @@ UC-05 «Забронювати товар». Сценарії взято з ла
 | WishlistItem        | сутність лабораторної №1: `wishlist_id`, `is_completed`       |
 | Reservation         | сутність лабораторної №1: `item_id`, `user_id`, `reserved_at` |
 
-`WishlistService` активний до фрагмента `alt` і завершує активацію після нього. На SC-04 це стосується зовнішнього `alt`, разом із вкладеним. На SC-12 активація починається до `par` і закінчується після `alt`.
+`WishlistService` активний від `reserveItem(itemId)` і завершує активацію після відповіді користувачу. На SC-03 і SC-04 ця активація охоплює фрагменти `break` і лінійне продовження після них. На SC-12 вона починається до `par` і закінчується після `alt`. Кожен виклик `Wishlist`, `WishlistItem` і `Reservation` має власну активацію від вхідного повідомлення до відповіді.
 
 ## 3. SC-03. Успішне бронювання товару
 
@@ -32,8 +32,8 @@ UC-05 «Забронювати товар». Сценарії взято з ла
 5. `WishlistService` викликає `Wishlist.isOwnedBy(currentUserId)` і отримує `false`.
 6. `WishlistService` викликає `WishlistItem.isCompleted()` і отримує `completed`.
 7. `WishlistService` викликає `Reservation.findByItemId(itemId)` і отримує `existing`.
-8. `alt`: гілка `completed = false` і `existing` порожній викликає `Reservation.createReservation(itemId, currentUserId)` і отримує `reservationId`. Гілка `completed = true` або `existing` існує викликає `rejectReservation()` і запис не створює. Цей сценарій іде першою гілкою: Gherkin фіксує, що товар не завершений і бронювання немає.
-9. `WishlistService` повертає іншому користувачу `reservationId`.
+8. `break`: охорона `completed = true` або `existing` існує викликає `rejectReservation()` і запис не створює. Цей сценарій охорону не бере: Gherkin фіксує, що товар не завершений і бронювання немає.
+9. Далі лінійно `Reservation.createReservation(itemId, currentUserId)`. `WishlistService` повертає іншому користувачу `reservationId`.
 
 Результат Gherkin: система створює бронювання.
 
@@ -45,7 +45,7 @@ UC-05 «Забронювати товар». Сценарії взято з ла
 2. `WishlistService` викликає `WishlistItem.findById(itemId)` і отримує товар.
 3. `WishlistService` викликає `Wishlist.findById(wishlistId)` і отримує список.
 4. `WishlistService` викликає `Wishlist.isOwnedBy(currentUserId)` і отримує `owned`.
-5. `alt`: гілка `owned = true` викликає `rejectReservation()`. `Reservation.createReservation()` у цій гілці немає. Цей сценарій іде цією гілкою. Гілка `owned = false` викликає `Wishlist.isPublic()`, `WishlistItem.isCompleted()` і `Reservation.findByItemId(itemId)`. Вкладений `alt` створює бронювання лише коли список публічний, товар не завершений і `existing` порожній. Інакше знову `rejectReservation()`.
+5. Перший `break`: охорона `owned = true` викликає `rejectReservation()`. `createReservation()` після цього фрагмента не виконується. Цей сценарій іде цим `break`. Якщо `owned = false`, далі лінійно `Wishlist.isPublic()`, `WishlistItem.isCompleted()` і `Reservation.findByItemId(itemId)`. Другий `break`: охорона `public = false` або `completed = true` або `existing` існує знову викликає `rejectReservation()`. Якщо ця охорона хибна, лінійно `createReservation(itemId, currentUserId)` і повернення `reservationId`.
 
 Результат Gherkin: система відхиляє запит, бронювання не створюється.
 
