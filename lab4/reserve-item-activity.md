@@ -35,9 +35,10 @@ flowchart TD
 
   start --> sendA
   sendA -->|reserveItem| takeReq
-  takeReq --> read --> pub --> own
+  takeReq --> read --> own
   own -->|так| sendNo
-  own -->|ні| guard
+  own -->|ні| pub
+  pub --> guard
   guard -->|так| sendNo
   guard -->|ні| two
   sendNo -->|rejectReservation| takeNo --> endNo
