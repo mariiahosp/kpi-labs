@@ -18,9 +18,8 @@ flowchart TD
     takeReq["Прийняти reserveItem(itemId)"]
     takeReqB["Прийняти reserveItem(itemId), запит B"]
     read["Прочитати WishlistItem і Wishlist"]
-    pub["isPublic()"]
     own{"isOwnedBy(currentUserId) = true?"}
-    guard{"completed = true або existing існує?"}
+    guard{"public = false або completed = true або existing існує?"}
     two{"два одночасні запити на цей itemId?"}
     createOne["createReservation(itemId, currentUserId)"]
     sendNo["Надіслати rejectReservation()"]
@@ -37,8 +36,7 @@ flowchart TD
   sendA -->|reserveItem| takeReq
   takeReq --> read --> own
   own -->|так| sendNo
-  own -->|ні| pub
-  pub --> guard
+  own -->|ні| guard
   guard -->|так| sendNo
   guard -->|ні| two
   sendNo -->|rejectReservation| takeNo --> endNo
