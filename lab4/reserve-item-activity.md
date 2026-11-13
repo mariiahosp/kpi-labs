@@ -6,12 +6,12 @@ flowchart TD
     sendB["Надіслати reserveItem(itemId), запит B"]
     takeId["Прийняти reservationId"]
     takeNo["Прийняти rejectReservation()"]
-    takeIdA["Прийняти reservationId запиту A"]
-    takeNoB["Прийняти rejectReservation() запиту B"]
     endOk([Кінець: одне бронювання])
     endNo([Кінець: відмова, запису немає])
-    endA([Кінець A: reservationId])
-    endB([Кінець B: відмова])
+    takeIdA["Прийняти reservationId першого запиту"]
+    takeNoB["Прийняти rejectReservation() другого запиту"]
+    endA([Кінець: перший отримав reservationId])
+    endB([Кінець: другий отримав відмову])
   end
 
   subgraph serviceLane ["WishlistService"]
@@ -25,11 +25,12 @@ flowchart TD
     sendNo["Надіслати rejectReservation()"]
     sendId["Надіслати reservationId"]
     fork{{"fork"}}
-    createA["createReservation(itemId, userA)"]
-    createB["createReservation(itemId, userB)"]
-    conflictB["conflict"]
-    sendIdA["Надіслати reservationId запиту A"]
-    sendNoB["Надіслати rejectReservation() запиту B"]
+    attemptA["Спроба запису запиту A"]
+    attemptB["Спроба запису запиту B"]
+    join{{"join"}}
+    createRace["createReservation — один запис"]
+    sendIdA["Надіслати reservationId першому запиту"]
+    sendNoB["Надіслати rejectReservation() другому запиту"]
   end
 
   start --> sendA
@@ -44,8 +45,13 @@ flowchart TD
   sendId -->|reservationId| takeId --> endOk
   two -->|так| sendB
   sendB -->|reserveItem| takeReqB --> fork
-  fork --> createA --> sendIdA
-  fork --> createB --> conflictB --> sendNoB
+  fork --> attemptA
+  fork --> attemptB
+  attemptA --> join
+  attemptB --> join
+  join --> createRace
+  createRace --> sendIdA
+  createRace --> sendNoB
   sendIdA -->|reservationId| takeIdA --> endA
   sendNoB -->|rejectReservation| takeNoB --> endB
 
